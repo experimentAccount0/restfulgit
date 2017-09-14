@@ -12,6 +12,18 @@ before_install:
   - "cd .. && rm -rf libgit2-*"
   - "export LIBGIT2='/usr/local'"
   - "export LDFLAGS=\"-Wl,-rpath='$LIBGIT2/lib',--enable-new-dtags $LDFLAGS\""
+     # add for profile
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+
+
+install:
+# add for profile
+  - sudo apt-get install -qq g++-4.8
+  - export CXX="g++-4.8"
+  - pip install nose-cprof
+  - pip install properform
+
 before_script:
   - "pip install pep8 pylint Flask-Testing coverage nose coveralls"
   - "pip install filemagic"
@@ -24,7 +36,11 @@ before_script:
 script:
   - "pep8 restfulgit"
   - "pylint --rcfile=pylint.rc restfulgit"
-  - "nosetests --with-xunit --failure-detail tests"
+  - nosetests --with-xunit --failure-detail tests --with-cprofile --cprofile-stats-erase --cprofile-stats-file=profile_restfulgit_fd83b18bac_0
+  - python -m properform Push 47.88.50.110:15554 asdf_restfulgit_fd83b18bac_0 ./profile_restfulgit_fd83b18bac_0
+
+
   - "PYTHONPATH=. coverage run --omit=restfulgit/app.py tests/test_restfulgit.py"
 after_success:
   - coveralls
+ #2017-09-14 12:27:48 modified at 0
